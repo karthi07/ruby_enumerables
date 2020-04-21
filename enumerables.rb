@@ -5,7 +5,7 @@ module Enumerable
     return to_enum unless block_given?
 
     (0...size).each do |i|
-      yield(self[i])
+      yield(to_a[i])
     end
   end
 
@@ -13,7 +13,7 @@ module Enumerable
     return to_enum unless block_given?
 
     (0...size).each do |i|
-      yield(self[i], i)
+      yield(to_a[i], i)
     end
     nil
   end
@@ -56,14 +56,34 @@ module Enumerable
   end
 
   def my_count(args = nil)
-    #    return to_enum unless block_given?
+    mcount = 0
+    if block_given?
+      my_each { |x| mcount += 1 if yield(x) }
+      return mcount
+    else
+      return size if args.nil?
 
-    return size unless block_given?
-    return size if args.length == 1
+      if args
+        my_each { |x| mcount += 1 if x == args }
+        return mcount
+      end
+    end
+  end
+
+  def my_map
+    return to_enum unless block_given?
+
+    res = []
+    (0...size).each do |i|
+      res.append(yield(to_a[i]))
+    end
+    res
   end
 end
 
 list1 = [11, 12, 13, 14, 15]
+
+list2 = [1, 2, 4, 2, 3, 4, 2]
 
 #
 # list1.each{ |x| print x," " }
@@ -87,6 +107,15 @@ list1 = [11, 12, 13, 14, 15]
 # p %w[ant bear cat].my_any { |word| word.length >= 4 }
 
 # p %w[ant bear cat].my_none { |word| word.length >= 3 }
-p list1.my_count
 
-p list1.my_count(2)
+# p list2.my_count
+
+# p list2.my_count(2)
+
+# p list1.my_count(&:even?)
+
+list1 = list1.my_map { |x| x + x }
+print list1
+
+p (1..4).my_map { |i| i * i } #=> [1, 4, 9, 16]
+p (1..4).my_map { 'cat' }
