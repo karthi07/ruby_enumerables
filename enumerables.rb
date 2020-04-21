@@ -3,8 +3,7 @@
 module Enumerable
   def my_each
     return to_enum unless block_given?
-
-    (0...size).each do |i|
+    for i in 0...size
       yield(to_a[i])
     end
   end
@@ -12,7 +11,7 @@ module Enumerable
   def my_each_with_index
     return to_enum unless block_given?
 
-    (0...size).each do |i|
+    for i in 0...size
       yield(to_a[i], i)
     end
     nil
@@ -74,10 +73,16 @@ module Enumerable
     return to_enum unless block_given?
 
     res = []
-    (0...size).each do |i|
-      res.append(yield(to_a[i]))
-    end
+    my_each { |x| res.append(yield(x)) }
     res
+  end
+
+  def my_inject(_args = nil)
+    return to_enum unless block_given?
+    res = 0
+#    my_each { |item| res = yield(res, item) }
+    my_each { |item| res = res ? yield(res, item) : item }
+    return res
   end
 end
 
@@ -114,8 +119,11 @@ list2 = [1, 2, 4, 2, 3, 4, 2]
 
 # p list1.my_count(&:even?)
 
-list1 = list1.my_map { |x| x + x }
-print list1
+#list1 = list1.my_map { |x| x + x }
+#print list1
 
-p (1..4).my_map { |i| i * i } #=> [1, 4, 9, 16]
-p (1..4).my_map { 'cat' }
+#p (1..4).my_map { |i| i * i } #=> [1, 4, 9, 16]
+#p (1..4).my_map { 'cat' }
+
+p (5..10).my_inject { |sum, n| sum + n }
+p (5..10).inject { |sum, n| sum + n }
